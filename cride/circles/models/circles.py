@@ -47,6 +47,6 @@ class Circle(CRideModel):
     """Return circle name."""
     return self.name
 
-  class Meta(CRideModel.META):
+  class Meta(CRideModel.Meta):
     """Meta class"""
     ordering = ['-rides_taken', '-rides_offered']
