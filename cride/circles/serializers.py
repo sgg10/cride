@@ -25,9 +25,6 @@ class CreateCircleSerializer(serializers.Serializer):
     ]
   )
   about = serializers.CharField(max_length=255, required=False)
-  """rides_taken = serializers.IntegerField()
-  rides_offered = serializers.IntegerField()
-  members_limit = serializers.IntegerField()"""
 
   def create(self, data):
     """Create circle"""
