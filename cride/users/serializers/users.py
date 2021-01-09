@@ -96,4 +96,4 @@ class UserSignUpSerializer(serializers.Serializer):
     data.pop('password_confirmation')
     user = User.objects.create_user(**data, is_verified=False)
     Profile.objects.create(user=user)
-    return user
+    return user 
