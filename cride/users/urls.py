@@ -18,8 +18,7 @@ from cride.users.views import (
 
 urlpatterns = [
   path('users/login/', UserLoginAPIView.as_view(), name='login'),
+  path('users/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
   path('users/signup/', UserSignUpAPIView.as_view(), name='signup'),
   path('users/verify/', AccountVerificationAPIView.as_view(), name='verify'),
-  path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-  path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh')
 ]
