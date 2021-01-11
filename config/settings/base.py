@@ -1,6 +1,7 @@
 """Base settings to build other settings files upon."""
 
 import environ
+from datetime import timedelta
 
 ROOT_DIR = environ.Path(__file__) - 3
 APPS_DIR = ROOT_DIR.path('cride')
@@ -164,10 +165,16 @@ REST_FRAMEWORK = {
         #'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 
         'rest_framework.pagination.LimitOffsetPagination',
         'PAGE_SIZE': 3
     
+}
+
+SIMPLE_JWT = {
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
+    'ROTATE_REFRESH_TOKENS': True
 }

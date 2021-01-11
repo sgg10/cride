@@ -12,6 +12,7 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 # Models
 from cride.users.models import User, Profile
@@ -34,32 +35,33 @@ class UserModelSerializer(serializers.ModelSerializer):
       'phone_number'
     )
 
-class UserLoginSerializer(serializers.Serializer):
+class UserLoginSerializer(TokenObtainPairSerializer):
   """User login serializer.
     Handle the login request data.
   """
 
-  email = serializers.EmailField()
-  password = serializers.CharField(min_length=8)
-
-  def validate(self, data):
-    """Check credentials."""
-    user = authenticate(username=data['email'], password=data['password'])
+  def validate(self, attrs):
+    """Check credentials and get token."""
+    user = authenticate(username=attrs['email'], password=attrs['password'])
     if not user:
       raise serializers.ValidationError('Invalid credentials')
     if not user.is_verified:
       raise serializers.ValidationError('Account is not active yet :(')
-    self.context['user'] = user
+    refresh = self.get_token(user)
+    data = {
+      'refresh': str(refresh),
+      'access': str(refresh.access_token),
+      'user': UserModelSerializer(user).data
+    }
     return data
 
-  def create(self, data):
-    """Create or retrieve new token."""
-    user = self.context['user']
-    token, created = Token.objects.get_or_create(user=user)
-    if created:
-      user.last_login = timezone.now()
-      user.save(update_fields=['last_login'])
-    return user, token.key
+  @classmethod
+  def get_token(cls, user):
+    """Add custom claim into token"""
+    token = super(UserLoginSerializer, cls).get_token(user)
+    # token['username'] = user.username
+    return token
+
 
 class UserSignUpSerializer(serializers.Serializer):
   """User Sign up serializer.
