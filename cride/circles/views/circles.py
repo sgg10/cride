@@ -1,8 +1,8 @@
 """Circle views."""
 
 # Django REST Framework
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, mixins
+from rest_framework.exceptions import MethodNotAllowed
 
 # Models
 from cride.circles.models import Circle, Membership
@@ -10,11 +10,25 @@ from cride.circles.models import Circle, Membership
 # Serializers
 from cride.circles.serializers import CircleModelSerializer
 
+# Permissions
+from cride.circles.permissions.circles import IsCircleAdmin
+from rest_framework.permissions import IsAuthenticated
+
 class CircleViewSet(viewsets.ModelViewSet):
   """Circle view set."""
   
   serializer_class = CircleModelSerializer
-  permission_classes = (IsAuthenticated,)
+
+  def get_permissions(self):
+    """Asing permissions based on action."""
+    permissions = [IsAuthenticated]
+    if self.action in ['update', 'partial_update']:
+      permissions.append(IsCircleAdmin)
+    return [permission() for permission in permissions]
+
+  def destroy(self, request, pk=None):
+    """Deny DELETE method."""
+    raise MethodNotAllowed('DELETE')
 
   def get_queryset(self):
     """Restrict list to public-only."""
