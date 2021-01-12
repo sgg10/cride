@@ -33,7 +33,7 @@ class UserViewSet(viewsets.GenericViewSet):
     return Response(data, status=status.HTTP_201_CREATED)
 
   @action(detail=False, methods=['POST'])
-  def verification(self, request):
+  def verify(self, request):
     """User account verification."""
     serializer = AccountVerificationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
