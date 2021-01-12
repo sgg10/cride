@@ -18,7 +18,8 @@ from cride.users.serializers import (
   UserLoginSerializer,
   UserModelSerializer,
   UserSignUpSerializer,
-  AccountVerificationSerializer
+  AccountVerificationSerializer,
+  ProfileModelSerializer
 )
 from cride.circles.serializers import CircleModelSerializer
 
@@ -30,7 +31,9 @@ class UserLoginAPIView(TokenObtainPairView):
   """User login API view."""
   serializer_class = UserLoginSerializer
 
-class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class UserViewSet(mixins.RetrieveModelMixin, 
+                  mixins.UpdateModelMixin, 
+                  viewsets.GenericViewSet):
   """User view set.
     Handle sign up, login and account verification
   """
@@ -43,7 +46,7 @@ class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """Assing permissions based on action."""
     if self.action in ['signup', 'login', 'verify']:
       permissions = [AllowAny]
-    elif self.action == 'retrieve':
+    elif self.action in ['retrieve', 'update', 'partial_update', 'profile']:
       permissions = [IsAuthenticated, IsAccountOwner]
     else:
       permissions = [IsAuthenticated]
@@ -66,6 +69,22 @@ class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer.save()
     data = { 'message': 'Congratulation, now go to share some rides!' }
     return Response(data, status=status.HTTP_200_OK)
+
+  @action(detail=True, methods=['PUT', 'PATCH'])
+  def profile(self, request, *args, **kwargs):
+    """Update Profile data."""
+    user = self.get_object()
+    profile = user.profile
+    partial = request.method == 'PATCH'
+    serializer = ProfileModelSerializer(
+      profile,
+      data=request.data,
+      partial=partial
+    )
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    data = UserModelSerializer(user).data
+    return Response(data)
 
   def retrieve(self, request, *args, **kwargs):
     """Add extra data to the response."""
