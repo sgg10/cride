@@ -44,3 +44,9 @@ class IsAdminOrMembershipOwner(BasePermission):
     except Membership.DoesNotExist:
       return False
     return True
+
+class IsSelfMember(BasePermission):
+  """Allow access only to the owner of the invitations."""
+
+  def has_permission(self, request, view):
+    return request.user == view.get_object().user
