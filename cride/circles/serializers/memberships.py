@@ -16,7 +16,7 @@ class MembershipModelSerializer(serializers.ModelSerializer):
   """Membership model Serializer."""
   
   user = UserModelSerializer(read_only=True)
-  inivited_by = serializers.StringRelatedField()
+  invited_by = serializers.StringRelatedField()
   joined_at = serializers.DateTimeField(source='created', read_only=True)
 
   class Meta:
@@ -27,7 +27,7 @@ class MembershipModelSerializer(serializers.ModelSerializer):
       'user',
       'is_admin', 'is_active',
       'used_invitations', 'remaining_invitations',
-      'inivited_by',
+      'invited_by',
       'rides_taken', 'rides_offered',
       'joined_at'
     )
@@ -35,7 +35,7 @@ class MembershipModelSerializer(serializers.ModelSerializer):
     read_only_fields= (
       'user', 
       'used_invitations',
-      'inivited_by',
+      'invited_by',
       'rides_taken', 'rides_offered',
     )
 
@@ -91,7 +91,7 @@ class AddMemberSerializer(serializers.Serializer):
       user=user,
       profile=user.profile,
       circle=circle,
-      inivited_by=invitation.issued_by
+      invited_by=invitation.issued_by
     )
 
     # Update Invitation

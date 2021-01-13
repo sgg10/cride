@@ -43,7 +43,7 @@ class MembershipViewSet(mixins.ListModelMixin,
     permissions = [IsAuthenticated]
     if self.action != 'create':
       permissions.append(IsActiveCircleMember)
-      permissions.append(IsAdminOrMembershipOwner)
+      # permissions.append(IsAdminOrMembershipOwner)
     if self.action == 'invitations':
       permissions.append(IsSelfMember)
     return [p() for p in permissions]
@@ -75,7 +75,7 @@ class MembershipViewSet(mixins.ListModelMixin,
 
     invited_members = Membership.objects.filter(
       circle=self.circle,
-      inivited_by=request.user,
+      invited_by=request.user,
       is_active=True
     )
 
