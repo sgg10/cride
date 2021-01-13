@@ -46,7 +46,12 @@ class IsAdminOrMembershipOwner(BasePermission):
     return True
 
 class IsSelfMember(BasePermission):
-  """Allow access only to the owner of the invitations."""
+  """Allow access only to the owners."""
 
   def has_permission(self, request, view):
-    return request.user == view.get_object().user
+    """Let object permission grant access."""
+    return self.has_object_permission(request, view, view.get_object())
+  
+  def has_object_permission(self, request, view, obj):
+    """Allow access only if member is owned by the requesting user."""
+    return request.user == obj.user
