@@ -7,14 +7,17 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 
 # Celery
-from celery.decorators import task
+from celery.decorators import task, periodic_task
+from celery.task.schedules import crontab
 
 # Models
 from cride.users.models import User
+from cride.rides.models import Ride
 
 # Utilities
 import jwt
 from datetime import timedelta
+import csv
 
 def gen_verification_token(user):
   """Create JWT token that the user can use to verify its account."""
@@ -42,3 +45,24 @@ def send_confirmation_email(user_pk):
   msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
   msg.attach_alternative(content, 'text/html')
   msg.send()
+
+@periodic_task(name='disable_finish_rides', run_every=crontab(hour=7, minute=30, day_of_week=1))
+def disable_finish_rides():
+  """Disable finished rides."""
+  now = timezone.now()
+  offset = now + timedelta(minutes=20)
+
+  # Update rides that have already fisinsh
+  rides = Ride.objects.filter(arrival_date__gte=now, arrival_date__lte=offset, is_active=True)
+  rides.update(is_active=False)
+
+@periodic_task(name='list_user', run_every=crontab(minute='*/1'))
+def list_user():
+  users = User.objects.all()
+  list_user = [['pk', 'username']]
+  for user in users:
+    list_user.append([user.pk, user.username])
+  with open('users.txt', 'w') as file:
+    writer = csv.writer(file)
+    writer.writerows(list_user)
+  print('writing complete')
