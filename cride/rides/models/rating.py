@@ -40,7 +40,7 @@ class Rating(CRideModel):
 
   comments =models.TextField(blank=True)
 
-  rating = models.IntegerSmallField(default=1)
+  rating = models.IntegerField(default=1)
 
   def __str__(self):
     """Return summary."""
